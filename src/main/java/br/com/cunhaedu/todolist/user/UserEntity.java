@@ -13,7 +13,7 @@ import lombok.Data;
 
 @Data
 @Entity(name = "tb_users")
-public class UserModel {
+public class UserEntity {
   @Id
   @GeneratedValue(generator = "UUID")
   private UUID id;

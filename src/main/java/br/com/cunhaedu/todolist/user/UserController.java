@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 
@@ -18,11 +19,14 @@ public class UserController {
   private IUserRepository userRepository;
 
   @PostMapping("/")
-  public ResponseEntity create(@RequestBody() UserModel userData) {
+  public ResponseEntity<UserEntity> create(@RequestBody() UserEntity userData) {
     var user = this.userRepository.findByUsername(userData.getUsername());
 
     if(user != null) {
-      return ResponseEntity.badRequest().body("User already exists");
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "User already exists"
+      );
     }
 
     var hashedPassword = BCrypt
