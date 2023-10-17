@@ -70,21 +70,26 @@ public class TaskController {
     HttpServletRequest request
   ) {
     var userId = request.getAttribute(USER_ID);
-    taskData.setUserId((UUID) userId);
-    taskData.setId(taskId);
 
-    var task = this.taskRepository.findById(taskId);
-
-    if(task.isEmpty()) {
+    if(!userId.equals(taskData.getUserId())) {
       throw new ResponseStatusException(
-        HttpStatus.NOT_FOUND,
-        "Task not found"
+        HttpStatus.BAD_REQUEST,
+        "This task does not belong to you"
       );
     }
 
+    taskData.setUserId((UUID) userId);
+    taskData.setId(taskId);
+
+    var task = this.taskRepository.findById(taskId)
+      .orElseThrow(() -> new ResponseStatusException(
+        HttpStatus.NOT_FOUND,
+        "Task not found"
+      ));
+
     Utils.copyNonNullProperties(taskData, task);
 
-    var updatedTask = this.taskRepository.save(taskData);
+    var updatedTask = this.taskRepository.save(task);
     return ResponseEntity.status(HttpStatus.OK).body(updatedTask);
   }
 }
